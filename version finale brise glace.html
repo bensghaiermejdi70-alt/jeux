@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 Jeu de Mémoire Brise-Glace - Premium Gratuit</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 
+    ©️ 2024 - Tous droits réservés
+    Ce jeu est la propriété exclusive de son créateur
+    Toute reproduction, distribution ou modification non autorisée est interdite
+    Contact pour licences commerciales : [votre-email@exemple.com]
+    -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .card {
+            perspective: 1000px;
+            cursor: pointer;
+        }
+        
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+        
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+        }
+        
+        .card-back {
+            transform: rotateY(180deg);
+        }
+        
+        .matched {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        
+        .celebration {
+            animation: celebration 0.8s ease-out;
+        }
+        
+        @keyframes celebration {
+            0% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.1) rotate(-5deg); }
+            50% { transform: scale(1.2) rotate(5deg); }
+            75% { transform: scale(1.1) rotate(-2deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        .pulse-gold {
+            animation: pulse-gold 2s infinite;
+        }
+
+        @keyframes pulse-gold {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 215, 0, 0); }
+        }
+
+        /* Protection contre la sélection et copie */
+        body {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .theme-dark {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        }
+
+        .theme-nature {
+            background: linear-gradient(135deg, #2d5016 0%, #3e7b27 50%, #4caf50 100%);
+        }
+
+        .theme-ocean {
+            background: linear-gradient(135deg, #0c4a6e 0%, #0369a1 50%, #0284c7 100%);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-400 via-pink-500 to-red-500 min-h-screen" id="gameBody">
+    
+    <div class="container mx-auto px-4 py-8">
+        <!-- En-tête -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-white mb-2">🎯 Jeu de Mémoire Brise-Glace</h1>
+            <p class="text-white/90 text-lg mb-4">Version Gratuite + Premium</p>
+            <div class="bg-gradient-to-r from-yellow-400 to-orange-500 rounded-lg px-6 py-3 inline-block mb-4 pulse-gold">
+                <p class="text-purple-800 font-bold text-lg">🎉 ACCÈS PREMIUM GRATUIT - TEMPS LIMITÉ !</p>
+                <p class="text-purple-700 text-sm">Profitez de toutes les fonctionnalités premium sans frais</p>
+            </div>
+            <div class="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 inline-block">
+                <p class="text-white text-sm">🎮 8 Jeux Complets | 🧠 Entraînement Cérébral | 🏆 Défis Progressifs</p>
+            </div>
+        </div>
+
+        <!-- Sélection des jeux -->
+        <div id="gameSelection" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Jeu 1: Mode Facile (Gratuit) -->
+            <div class="bg-white/95 backdrop-blur-sm rounded-xl shadow-xl p-6 transform hover:scale-105 transition-all duration-300">
+                <div class="text-center">
+                    <div class="text-6xl mb-4">🌟</div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Mode Facile</h3>
+                    <p class="text-gray-600 mb-4">Parfait pour débuter avec 6 paires d'animaux</p>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-bold">GRATUIT</span>
+                        <span class="text-yellow-500">⭐⭐⭐</span>
+                    </div>
+                    <button onclick="startGame('easy')" class="w-full bg-gradient-to-r from-green-500 to-teal-600 text-white py-3 rounded-lg font-bold hover:from-green-600 hover:to-teal-700 transition-colors shadow-lg">
+                        🌟 Jouer - Facile
+                    </button>
+                </div>
+            </div>
+
+            <!-- Jeu 2: Mode Classique (Gratuit) -->
+            <div class="bg-white/95 backdrop-blur-sm rounded-xl shadow-xl p-6 transform hover:scale-105 transition-all duration-300">
+                <div class="text-center">
+                    <div class="text-6xl mb-4">🎮</div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Mode Classique</h3>
+                    <p class="text-gray-600 mb-4">Jeu traditionnel avec 8 paires de sports</p>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-bold">GRATUIT</span>
+                        <span class="text-yellow-500">⭐⭐⭐⭐</span>
+                    </div>
+                    <button onclick="startGame('classic')" class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-lg font-bold hover:from-blue-600 hover:to-purple-700 transition-colors shadow-lg">
+                        🎮 Jouer - Classique
+                    </button>
+                </div>
+            </div>
+
+            <!-- Jeu 3: Simon Says (Gratuit) -->
+            <div class="bg-white/95 backdrop-blur-sm rounded-xl shadow-xl p-6 transform hover:scale-105 transition-all duration-300">
+                <div class="text-center">
+                    <div class="text-6xl mb-4">🎵</div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Simon Says</h3>
+                    <p class="text-gray-600 mb-4">Mémorisez la séquence de couleurs</p>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-bold">GRATUIT</span>
+                        <span class="text-yellow-500">⭐⭐⭐⭐</span>
+                    </div>
+                    <button onclick="startGame('simon')" class="w-full bg-gradient-to-r from-indigo-500 to-blue-600 text-white py-3 rounded-lg font-bold hover:from-indigo-600 hover:to-blue-700 transition-colors shadow-lg">
+                        🎵 Jouer - Simon
+                    </button>
+                </div>
+            </div>
+
+            <!-- Jeu 4: Mode Expert (Premium) -->
+            <div class="bg-white/95 backdrop-blur-sm rounded-xl shadow-xl p-6 transform hover:scale-105 transition-all duration-300 border-2 border-yellow-300">
+                <div class="text-center">
+                    <div class="text-6xl mb-4">👑</div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Mode Expert</h3>
+                    <p class="text-gray-600 mb-4">Défi ultime avec 12 paires de gemmes</p>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-sm font-bold">PREMIUM</span>
+                        <span class="text-yellow-500">⭐⭐⭐⭐⭐</span>
+                    </div>
+                    <button onclick="startGame('expert')" class="w-full bg-gradient-to-r from-yellow-500 to-orange-600 text-white py-3 rounded-lg font-bold hover:from-yellow-600 hover:to-orange-700 transition-colors shadow-lg">
+                        👑 Jouer - Expert
+                    </button>
+                </div>
+            </div>
+
+            <!-- Jeu 5: Speed Challenge (Premium) -->
+            <div class="bg-white/95 backdrop-blur-sm rounded-xl shadow-xl p-6 transform hover:scale-105 transition-all duration-300 border-2 border-red-300">
+                <div class="text-center">
+                    <div class="text-6xl mb-4">⚡</div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Speed Challenge</h3>
+                    <p class="text-gray-600 mb-4">Course contre la montre avec fruits</p>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-gradient-to-r from-red-400 to-pink-500 text-white px-3 py-1 rounded-full text-sm font-bold">PREMIUM</span>
+                        <span class="text-yellow-500">⭐⭐⭐⭐⭐</span>
+                    </div>
+                    <button onclick="startGame('speed')" class="w-full bg-gradient-to-r from-red-500 to-pink-600 text-white py-3 rounded-lg font-bold hover:from-red-600 hover:to-pink-700 transition-colors shadow-lg">
+                        ⚡ Jouer - Speed
+                    </button>
+                </div>
+            </div>
+
+            <!-- Jeu 6: Mega Memory (Premium) -->
+            <div class="bg-white/95 backdrop-blur-sm rounded-xl shadow-xl p-6 transform hover:scale-105 transition-all duration-300 border-2 border-purple-300">
+                <div class="text-center">
+                    <div class="text-6xl mb-4">🧠</div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Mega Memory</h3>
+                    <p class="text-gray-600 mb-4">16 paires d'objets du quotidien</p>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-gradient-to-r from-purple-400 to-blue-500 text-white px-3 py-1 rounded-full text-sm font-bold">PREMIUM</span>
+                        <span class="text-yellow-500">⭐⭐⭐⭐⭐</span>
+                    </div>
+                    <button onclick="startGame('mega')" class="w-full bg-gradient-to-r from-purple-500 to-blue-600 text-white py-3 rounded-lg font-bold hover:from-purple-600 hover:to-blue-700 transition-colors shadow-lg">
+                        🧠 Jouer - Mega
+                    </button>
+                </div>
+            </div>
+
+            <!-- Jeu 7: Nature Quest (Premium) -->
+            <div class="bg-white/95 backdrop-blur-sm rounded-xl shadow-xl p-6 transform hover:scale-105 transition-all duration-300 border-2 border-green-300">
+                <div class="text-center">
+                    <div class="text-6xl mb-4">🌿</div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Nature Quest</h3>
+                    <p class="text-gray-600 mb-4">10 paires d'éléments naturels</p>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-gradient-to-r from-green-400 to-teal-500 text-white px-3 py-1 rounded-full text-sm font-bold">PREMIUM</span>
+                        <span class="text-yellow-500">⭐⭐⭐⭐⭐</span>
+                    </div>
+                    <button onclick="startGame('nature')" class="w-full bg-gradient-to-r from-green-500 to-teal-600 text-white py-3 rounded-lg font-bold hover:from-green-600 hover:to-teal-700 transition-colors shadow-lg">
+                        🌿 Jouer - Nature
+                    </button>
+                </div>
+            </div>
+
+            <!-- Jeu 8: Space Adventure (Premium) -->
+            <div class="bg-white/95 backdrop-blur-sm rounded-xl shadow-xl p-6 transform hover:scale-105 transition-all duration-300 border-2 border-indigo-300">
+                <div class="text-center">
+                    <div class="text-6xl mb-4">🚀</div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Space Adventure</h3>
+                    <p class="text-gray-600 mb-4">14 paires d'objets spatiaux</p>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-gradient-to-r from-indigo-400 to-purple-500 text-white px-3 py-1 rounded-full text-sm font-bold">PREMIUM</span>
+                        <span class="text-yellow-500">⭐⭐⭐⭐⭐</span>
+                    </div>
+                    <button onclick="startGame('space')" class="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-3 rounded-lg font-bold hover:from-indigo-600 hover:to-purple-700 transition-colors shadow-lg">
+                        🚀 Jouer - Space
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Container -->
+        <div id="gameContainer" class="hidden">
+            <div class="bg-white rounded-xl shadow-2xl p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <button onclick="backToMenu()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors">
+                        ← Retour au Menu
+                    </button>
+                    <div id="gameStats" class="text-center">
+                        <div class="text-lg font-bold text-gray-800">
+                            <span id="gameTitle">Jeu de Mémoire</span>
+                        </div>
+                        <div class="text-sm text-gray-600">
+                            Coups: <span id="moves">0</span> | Temps: <span id="timer">00:00</span>
+                        </div>
+                    </div>
+                    <button onclick="resetGame()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                        🔄 Recommencer
+                    </button>
+                </div>
+                
+                <div id="gameBoard" class="grid gap-4 justify-center">
+                    <!-- Game cards will be generated here -->
+                </div>
+                
+                <div id="gameMessage" class="text-center mt-6 text-xl font-bold text-green-600 hidden">
+                    🎉 Félicitations ! Vous avez gagné !
+                </div>
+            </div>
+        </div>
+
+        <!-- Premium Modal -->
+        <div id="premiumModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-xl p-8 max-w-md mx-4">
+                <div class="text-center">
+                    <div class="text-6xl mb-4">👑</div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Débloquer Premium</h3>
+                    <p class="text-gray-600 mb-6">
+                        Accédez aux jeux premium pour seulement <strong>2.99$</strong> !
+                    </p>
+                    <div class="bg-gradient-to-r from-yellow-100 to-orange-100 p-4 rounded-lg mb-6">
+                        <h4 class="font-bold text-gray-800 mb-2">🎁 Inclus dans Premium :</h4>
+                        <ul class="text-left text-sm text-gray-700">
+                            <li>✅ Mode Expert (12 paires de gemmes)</li>
+                            <li>✅ Speed Challenge (fruits chronométrés)</li>
+                            <li>✅ Mega Memory (16 paires d'objets)</li>
+                            <li>✅ Nature Quest (10 paires naturelles)</li>
+                            <li>✅ Space Adventure (14 paires spatiales)</li>
+                            <li>✅ Statistiques avancées</li>
+                            <li>✅ Thèmes exclusifs</li>
+                        </ul>
+                    </div>
+                    <div class="flex gap-4">
+                        <button onclick="closePremiumModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 py-3 rounded-lg font-bold transition-colors">
+                            Plus tard
+                        </button>
+                        <button onclick="purchasePremium()" class="flex-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-white py-3 rounded-lg font-bold hover:from-yellow-500 hover:to-orange-600 transition-colors">
+                            🔓 Acheter - 2.99$
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-12 text-white">
+            <p class="text-sm opacity-75">©️ 2024 - Jeu de Mémoire Brise-Glace - Tous droits réservés</p>
+        </div>
+    </div>
+
+    <script>
+        let currentGame = null;
+        let gameBoard = [];
+        let flippedCards = [];
+        let moves = 0;
+        let startTime = null;
+        let timerInterval = null;
+        let gameImages = {
+            'easy': ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐸', '🐯', '🐨', '🐼', '🐵', '🦁', '🐷', '🐮', '🐺', '🐻', '🐸', '🐙', '🐠', '🦆'],
+            'classic': ['⚽', '🏀', '🏈', '⚾', '🎾', '🏐', '🏓', '🏸', '🏑', '🥍', '🏒', '🎱', '🏊', '🚴', '🏃', '⛷️', '🏄', '🤸', '🏋️', '🤾'],
+            'simon': ['🔴', '🔵', '🟢', '🟡', '🟠', '🟣', '⚫', '⚪'],
+            'expert': ['💎', '💍', '👑', '🔮', '💰', '🏆', '⭐', '🌟', '💫', '✨', '🎭', '🎪', '🎨', '🎯', '🎲', '🃏', '💳', '🎖️', '🏅', '🔱'],
+            'speed': ['🍎', '🍌', '🍊', '🍇', '🍓', '🥝', '🍑', '🥭', '🍍', '🥥', '🍒', '🍈', '🫐', '🥑', '🍅', '🌶️', '🥕', '🌽', '🥒', '🥬'],
+            'mega': ['🏠', '🚗', '📱', '💻', '⌚', '🎧', '📷', '🔑', '💡', '🔧', '✂️', '📚', '🖊️', '🎒', '👓', '🧸', '🎮', '🎯', '🎲', '🎪', '🎨', '🎭', '🎪', '🎸', '🎹', '🎺', '🥁', '🎻', '🎤', '🎬'],
+            'nature': ['🌳', '🌸', '🍄', '🦋', '🐝', '🌻', '🌿', '🌺', '🍃', '🌼', '🌵', '🌾', '🌱', '🌹', '🌷', '🌴', '🌲', '🍀', '🌊', '⛰️', '🏔️', '🌋', '🏜️', '🏞️'],
+            'space': ['🚀', '🛸', '🌟', '🪐', '🌙', '☄️', '👽', '🛰️', '🌌', '⭐', '🌕', '🌍', '🔭', '👨‍🚀', '🌠', '🌒', '🌑', '🌓', '🌔', '🌖', '🌗', '🌘', '🌎', '🌏', '🌚', '🌛', '🌜', '🌝', '🌞', '☀️']
+        };
+
+        function startGame(gameType) {
+            currentGame = gameType;
+            document.getElementById('gameSelection').classList.add('hidden');
+            document.getElementById('gameContainer').classList.remove('hidden');
+            
+            const titles = {
+                'easy': 'Mode Facile - Animaux',
+                'classic': 'Mode Classique - Sports', 
+                'simon': 'Simon Says',
+                'expert': 'Mode Expert - Gemmes',
+                'speed': 'Speed Challenge - Fruits',
+                'mega': 'Mega Memory - Objets',
+                'nature': 'Nature Quest - Éléments',
+                'space': 'Space Adventure - Cosmos'
+            };
+            
+            document.getElementById('gameTitle').textContent = titles[gameType];
+            
+            if (gameType === 'simon') {
+                initSimonSays();
+            } else {
+                initMemoryGame(gameType);
+            }
+        }
+
+        function initMemoryGame(gameType) {
+            const pairs = {
+                'easy': 6,
+                'classic': 8,
+                'expert': 12,
+                'speed': 6,
+                'mega': 16,
+                'nature': 10,
+                'space': 14
+            };
+            
+            const pairCount = pairs[gameType];
+            const images = gameImages[gameType];
+            
+            // Create pairs
+            gameBoard = [];
+            for (let i = 0; i < pairCount; i++) {
+                gameBoard.push(images[i], images[i]);
+            }
+            
+            // Shuffle
+            for (let i = gameBoard.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [gameBoard[i], gameBoard[j]] = [gameBoard[j], gameBoard[i]];
+            }
+            
+            renderGameBoard();
+            resetStats();
+        }
+
+        function initSimonSays() {
+            const board = document.getElementById('gameBoard');
+            board.className = 'grid grid-cols-2 gap-4 max-w-md mx-auto';
+            
+            const colors = ['🔴', '🔵', '🟢', '🟡'];
+            const colorClasses = ['bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500'];
+            
+            board.innerHTML = colors.map((color, index) => `
+                <button onclick="simonClick(${index})" 
+                        class="simon-btn ${colorClasses[index]} hover:opacity-80 text-white text-6xl p-8 rounded-xl transition-all transform hover:scale-105"
+                        data-color="${index}">
+                    ${color}
+                </button>
+            `).join('');
+            
+            startSimonSequence();
+        }
+
+        let simonSequence = [];
+        let playerSequence = [];
+        let simonLevel = 1;
+
+        function startSimonSequence() {
+            simonSequence.push(Math.floor(Math.random() * 4));
+            playSimonSequence();
+        }
+
+        function playSimonSequence() {
+            playerSequence = [];
+            let index = 0;
+            
+            const playNext = () => {
+                if (index < simonSequence.length) {
+                    const colorIndex = simonSequence[index];
+                    const btn = document.querySelector(`[data-color="${colorIndex}"]`);
+                    btn.classList.add('brightness-150', 'scale-110');
+                    
+                    setTimeout(() => {
+                        btn.classList.remove('brightness-150', 'scale-110');
+                        index++;
+                        setTimeout(playNext, 300);
+                    }, 500);
+                }
+            };
+            
+            setTimeout(playNext, 1000);
+        }
+
+        function simonClick(colorIndex) {
+            playerSequence.push(colorIndex);
+            
+            const btn = document.querySelector(`[data-color="${colorIndex}"]`);
+            btn.classList.add('brightness-150', 'scale-110');
+            setTimeout(() => {
+                btn.classList.remove('brightness-150', 'scale-110');
+            }, 200);
+            
+            // Check sequence
+            const currentIndex = playerSequence.length - 1;
+            if (playerSequence[currentIndex] !== simonSequence[currentIndex]) {
+                // Wrong sequence
+                document.getElementById('gameMessage').textContent = '❌ Séquence incorrecte ! Recommencez.';
+                document.getElementById('gameMessage').classList.remove('hidden');
+                setTimeout(() => {
+                    simonSequence = [];
+                    simonLevel = 1;
+                    startSimonSequence();
+                    document.getElementById('gameMessage').classList.add('hidden');
+                }, 2000);
+                return;
+            }
+            
+            if (playerSequence.length === simonSequence.length) {
+                // Correct sequence completed
+                simonLevel++;
+                moves++;
+                document.getElementById('moves').textContent = moves;
+                
+                if (simonLevel > 10) {
+                    document.getElementById('gameMessage').textContent = '🎉 Incroyable ! Vous êtes un maître Simon !';
+                    document.getElementById('gameMessage').classList.remove('hidden');
+                } else {
+                    setTimeout(() => {
+                        startSimonSequence();
+                    }, 1000);
+                }
+            }
+        }
+
+        function renderGameBoard() {
+            const board = document.getElementById('gameBoard');
+            const cols = Math.ceil(Math.sqrt(gameBoard.length));
+            board.className = `grid grid-cols-${Math.min(cols, 6)} gap-4 max-w-4xl mx-auto`;
+            
+            board.innerHTML = gameBoard.map((image, index) => `
+                <div class="card w-20 h-20 relative cursor-pointer" onclick="flipCard(${index})">
+                    <div class="card-inner">
+                        <div class="card-front bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                            ?
+                        </div>
+                        <div class="card-back bg-white rounded-lg flex items-center justify-center text-4xl shadow-lg border-2 border-gray-200">
+                            ${image}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function flipCard(index) {
+            if (flippedCards.length >= 2 || flippedCards.includes(index)) return;
+            
+            const card = document.querySelectorAll('.card')[index];
+            card.classList.add('flipped');
+            flippedCards.push(index);
+            
+            if (flippedCards.length === 2) {
+                moves++;
+                document.getElementById('moves').textContent = moves;
+                
+                setTimeout(() => {
+                    checkMatch();
+                }, 1000);
+            }
+        }
+
+        function checkMatch() {
+            const [first, second] = flippedCards;
+            const cards = document.querySelectorAll('.card');
+            
+            if (gameBoard[first] === gameBoard[second]) {
+                // Match found
+                cards[first].style.opacity = '0.6';
+                cards[second].style.opacity = '0.6';
+                cards[first].onclick = null;
+                cards[second].onclick = null;
+                cards[first].classList.add('matched');
+                cards[second].classList.add('matched');
+                
+                // Check if game is complete
+                const matchedCards = document.querySelectorAll('.card.matched');
+                if (matchedCards.length === gameBoard.length) {
+                    document.getElementById('gameMessage').classList.remove('hidden');
+                    clearInterval(timerInterval);
+                }
+            } else {
+                // No match
+                cards[first].classList.remove('flipped');
+                cards[second].classList.remove('flipped');
+            }
+            
+            flippedCards = [];
+        }
+
+        function resetStats() {
+            moves = 0;
+            startTime = Date.now();
+            document.getElementById('moves').textContent = '0';
+            
+            clearInterval(timerInterval);
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            if (!startTime) return;
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            document.getElementById('timer').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function resetGame() {
+            if (currentGame === 'simon') {
+                simonSequence = [];
+                simonLevel = 1;
+                playerSequence = [];
+                initSimonSays();
+            } else {
+                initMemoryGame(currentGame);
+            }
+            document.getElementById('gameMessage').classList.add('hidden');
+            flippedCards = [];
+        }
+
+        function backToMenu() {
+            document.getElementById('gameSelection').classList.remove('hidden');
+            document.getElementById('gameContainer').classList.add('hidden');
+            clearInterval(timerInterval);
+            currentGame = null;
+        }
+
+        function showPremium(gameType) {
+            document.getElementById('premiumModal').classList.remove('hidden');
+        }
+
+        function closePremiumModal() {
+            document.getElementById('premiumModal').classList.add('hidden');
+        }
+
+        function purchasePremium() {
+            alert('🎉 Merci pour votre achat ! Fonctionnalité de paiement en cours de développement.\n\nPour cette démo, tous les jeux sont maintenant débloqués !');
+            closePremiumModal();
+            
+            // Simulate premium unlock
+            const premiumButtons = document.querySelectorAll('button[onclick*="showPremium"]');
+            premiumButtons.forEach(btn => {
+                btn.onclick = () => {
+                    const gameType = btn.onclick.toString().includes('expert') ? 'expert' : 'speed';
+                    startGame(gameType);
+                };
+                btn.innerHTML = btn.innerHTML.replace('Débloquer - 2.99$', 'Jouer Maintenant');
+                btn.className = btn.className.replace('from-yellow-500 to-orange-600', 'from-green-500 to-blue-600');
+            });
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97f66502a1132da8',t:'MTc1NzkyMTE3My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
